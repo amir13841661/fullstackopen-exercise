@@ -18,7 +18,7 @@ const App = () => {
       <Button name="neutral" onClick={()=>setNeutral(neutral+1)}/>
       <Button name="bad" onClick={()=>setBad(bad+1)}/>
       <Header text="statistics"/>
-      {(good+neutral+bad)!=0?<Statistics good={good} bad={bad} neutral={neutral}/>:<StatisticLine text="No feedback given"/>}
+      {(good+neutral+bad)!=0?<Statistics good={good} bad={bad} neutral={neutral}/>:<p>{"No feedback given"}</p>}
 
 
 
@@ -34,17 +34,22 @@ const Header=({text})=>(
 )
 
 const StatisticLine=({text,value})=>(
-  <p>{text} {value}</p>
+  <tr>
+  <td>{text}</td>
+  <td>{value}</td>
+  </tr>
 )
 const Statistics=({good,bad,neutral})=>(
-  <>
+  <table>
+    <tbody>
   <StatisticLine text="good" value={good}/>
   <StatisticLine text="neutral" value={neutral}/>
   <StatisticLine text="bad" value={bad}/>
   <StatisticLine text="all" value={(bad+good+neutral)}/>
   <StatisticLine text="average" value={calculateAverage(good,bad,neutral)}/>
   <StatisticLine text="positive" value={calculatePositive(good,bad,neutral)+"%"}/>
-  </>
+    </tbody>
+  </table>
 
 )
 
