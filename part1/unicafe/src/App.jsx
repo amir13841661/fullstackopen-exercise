@@ -17,7 +17,8 @@ const App = () => {
       <Button name="good" onClick={()=>setGood(good+1)}/>
       <Button name="neutral" onClick={()=>setNeutral(neutral+1)}/>
       <Button name="bad" onClick={()=>setBad(bad+1)}/>
-      <Statistics good={good} bad={bad} neutral={neutral}/>
+      <Header text="statistics"/>
+      {(good+neutral+bad)!=0?<Statistics good={good} bad={bad} neutral={neutral}/>:<Content text="No feedback given"/>}
 
 
 
@@ -37,7 +38,6 @@ const Content=({text})=>(
 )
 const Statistics=({good,bad,neutral})=>(
   <>
-  <Header text="statistics"/>
   <Content text={"good"+" "+ good}/>
   <Content text={"neutral"+" "+ neutral}/>
   <Content text={"bad"+" "+ bad}/>
