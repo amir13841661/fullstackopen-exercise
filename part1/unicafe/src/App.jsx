@@ -18,7 +18,7 @@ const App = () => {
       <Button name="neutral" onClick={()=>setNeutral(neutral+1)}/>
       <Button name="bad" onClick={()=>setBad(bad+1)}/>
       <Header text="statistics"/>
-      {(good+neutral+bad)!=0?<Statistics good={good} bad={bad} neutral={neutral}/>:<Content text="No feedback given"/>}
+      {(good+neutral+bad)!=0?<Statistics good={good} bad={bad} neutral={neutral}/>:<StatisticLine text="No feedback given"/>}
 
 
 
@@ -33,17 +33,17 @@ const Header=({text})=>(
   <h1>{text}</h1>
 )
 
-const Content=({text})=>(
-  <p>{text}</p>
+const StatisticLine=({text,value})=>(
+  <p>{text} {value}</p>
 )
 const Statistics=({good,bad,neutral})=>(
   <>
-  <Content text={"good"+" "+ good}/>
-  <Content text={"neutral"+" "+ neutral}/>
-  <Content text={"bad"+" "+ bad}/>
-  <Content text={"all"+" "+(bad+good+neutral)}/>
-  <Content text={"average"+" "+calculateAverage(good,bad,neutral)}/>
-  <Content text={"positive"+" "+calculatePositive(good,bad,neutral)+"%"}/>
+  <StatisticLine text="good" value={good}/>
+  <StatisticLine text="neutral" value={neutral}/>
+  <StatisticLine text="bad" value={bad}/>
+  <StatisticLine text="all" value={(bad+good+neutral)}/>
+  <StatisticLine text="average" value={calculateAverage(good,bad,neutral)}/>
+  <StatisticLine text="positive" value={calculatePositive(good,bad,neutral)+"%"}/>
   </>
 
 )
