@@ -17,13 +17,7 @@ const App = () => {
       <Button name="good" onClick={()=>setGood(good+1)}/>
       <Button name="neutral" onClick={()=>setNeutral(neutral+1)}/>
       <Button name="bad" onClick={()=>setBad(bad+1)}/>
-      <Header text="statistics"/>
-      <Content text={"good"+" "+ good}/>
-      <Content text={"neutral"+" "+ neutral}/>
-      <Content text={"bad"+" "+ bad}/>
-      <Content text={"all"+" "+(bad+good+neutral)}/>
-      <Content text={"average"+" "+calculateAverage(good,bad,neutral)}/>
-      <Content text={"positive"+" "+calculatePositive(good,bad,neutral)+"%"}/>
+      <Statistics good={good} bad={bad} neutral={neutral}/>
 
 
 
@@ -40,6 +34,18 @@ const Header=({text})=>(
 
 const Content=({text})=>(
   <p>{text}</p>
+)
+const Statistics=({good,bad,neutral})=>(
+  <>
+  <Header text="statistics"/>
+  <Content text={"good"+" "+ good}/>
+  <Content text={"neutral"+" "+ neutral}/>
+  <Content text={"bad"+" "+ bad}/>
+  <Content text={"all"+" "+(bad+good+neutral)}/>
+  <Content text={"average"+" "+calculateAverage(good,bad,neutral)}/>
+  <Content text={"positive"+" "+calculatePositive(good,bad,neutral)+"%"}/>
+  </>
+
 )
 
 export default App
