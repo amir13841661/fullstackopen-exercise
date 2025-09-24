@@ -17,24 +17,45 @@ const App = () => {
   ]
 
   const setRandomAnecdote=()=>{
-  let num=0
-  while(true){
-    num=Math.floor(Math.random()*anecdotes.length)
-    if(selected!=num){
-      break;
+    let num=0
+    while(true){
+      num=Math.floor(Math.random()*anecdotes.length)
+      if(selected!=num){
+        break;
+      }
     }
-  }
-  return setSelected(num)
+    return setSelected(num)
 
-}
+  }
+
+  const handleVote=()=>{
+    const temp=[...votes]
+    temp[selected]+=1
+    return setVotes(temp)
+  }
+
+  
+
    
   const [selected, setSelected] = useState(0)
+  const [votes,setVotes]=useState(new Array(anecdotes.length).fill(0))
+  // console.log(votes);
+  
+  const max=Math.max(...votes)
+  // console.log(max);
+  const maxIndex=votes.indexOf(max)
 
   return (
     
     <div>
-      <Header text={anecdotes[selected]}/>
+      <Header text="Anecdote of the day"/>
+      <Content text={anecdotes[selected]}/>
+      <Content text={`has ${votes[selected]} votes`}/>
+      <Button name="vote" onClick={handleVote}/>
       <Button name="next anecdote" onClick={setRandomAnecdote} />
+      <Header text="Anecdote with most votes"/>
+      <Content text={anecdotes[maxIndex]}/>
+      <Content text={`has ${votes[maxIndex]} votes`}/>
     </div>
   )
 }
@@ -42,9 +63,13 @@ const App = () => {
 const Button=({name,onClick})=>(
   <button onClick={onClick}>{name}</button>
 )
-const Header=({text})=>(
-  <h3>{text}</h3>
+const Content=({text})=>(
+  <p>{text}</p>
 )
+const Header=({text})=>(
+  <h1>{text}</h1>
+)
+
 
 
 export default App
