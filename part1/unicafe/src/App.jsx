@@ -1,6 +1,8 @@
 import { useState } from 'react'
 
 
+const calculateAverage=(good,bad,neutral)=>(good+bad+neutral!=0)?(good-bad)/(good+bad+neutral):0
+const calculatePositive=(good,bad,neutral)=>(good+bad+neutral!=0)?good/(good+bad+neutral)*100:0
 
 
 const App = () => {
@@ -16,9 +18,13 @@ const App = () => {
       <Button name="neutral" onClick={()=>setNeutral(neutral+1)}/>
       <Button name="bad" onClick={()=>setBad(bad+1)}/>
       <Header text="statistics"/>
-      <Content name="good" count={good}/>
-      <Content name="neutral" count={neutral}/>
-      <Content name="bad" count={bad}/>
+      <Content text={"good"+" "+ good}/>
+      <Content text={"neutral"+" "+ neutral}/>
+      <Content text={"bad"+" "+ bad}/>
+      <Content text={"all"+" "+(bad+good+neutral)}/>
+      <Content text={"average"+" "+calculateAverage(good,bad,neutral)}/>
+      <Content text={"positive"+" "+calculatePositive(good,bad,neutral)+"%"}/>
+
 
 
     </div>
@@ -32,8 +38,8 @@ const Header=({text})=>(
   <h1>{text}</h1>
 )
 
-const Content=({name, count})=>(
-  <p>{name} {count}</p>
+const Content=({text})=>(
+  <p>{text}</p>
 )
 
 export default App
