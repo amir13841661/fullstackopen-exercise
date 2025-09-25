@@ -4,7 +4,7 @@ const Total=({parts})=>(
             sum+part.exercises
 
         )
-    ,0)}
+    ,0)} exercises
 
     </p>
 )
