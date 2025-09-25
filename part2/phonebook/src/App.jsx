@@ -3,8 +3,8 @@ import Persons from './components/Persons'
 import PhoneForm from './components/PhoneForm'
 import SearchForm from './components/SearchForm'
 import { useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 
 
@@ -18,6 +18,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber,setNewNumber]=useState('')
   const [searchName,setSearchName]=useState('')
+  const [message , setMessage]=useState('')
+  const [error,setError]=useState('')
 
   useEffect(()=>{
     personService.getAll()
@@ -29,16 +31,30 @@ const App = () => {
     const newPerson={name:newName,number:newNumber,id:`${Number(persons[persons.length-1].id)+1}`}
     setPersons(persons.concat(newPerson))
     personService.create(newPerson)
+    setMessage(`added ${newPerson.name}`)
+    setTimeout(()=>setMessage(''),2000)
   }
 
   const changeNumber=()=>{
     const index=persons.findIndex(u=>u.name==newName)
-    const person=persons[index]
+    const person={...persons[index]}
     person.number=newNumber
     personService.updatePerson(person)
-    const copy=[...persons]
-    copy.splice(index,1,person)
-    setPersons(copy)
+    .then(response=>{
+      const copy=[...persons]
+      copy.splice(index,1,person)
+      setPersons(copy)
+      setMessage(`changed ${person.name} number to ${person.number}`)
+
+    })
+    .catch(error=>{
+      setError(`information for ${person.name} has already been deleted`)
+    })
+    setTimeout(()=>{
+      setMessage('')
+      setError('')
+
+    },2000)
   }
 
 
@@ -97,6 +113,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={error} type="error"/>
+      <Notification message={message} type="notification"/>
       <SearchForm onChange={handleSearchForm} value={searchName}/>
 
       <h2>add a new</h2>
