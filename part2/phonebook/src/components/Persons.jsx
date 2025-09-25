@@ -2,9 +2,8 @@ import Person from "./Person";
 
 const Persons = ({persons})=>(
     <ul>
-    {persons.map((person,i)=>(
-        <Person person={person} id={i} key={i}/>
-
+    {persons.map((person)=>(
+        <Person person={person} id={person.id} key={person.id}/>
     ))}
     </ul>
 )
