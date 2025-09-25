@@ -1,4 +1,5 @@
 import Part from "./Part"
+import Total from "../Total"
 
 const Content=({parts})=>(
     <ul>
