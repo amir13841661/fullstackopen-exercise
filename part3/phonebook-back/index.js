@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-
+app.use(express.json())
 
 const persons=[
     { 
@@ -56,6 +56,43 @@ app.get("/info",(request,response)=>{
 
   const info=`<h1>phonebook has info for ${persons.length} people</h1><p>${formatted}</p>`
   response.send(info)
+})
+
+app.get("/api/persons/:id",(request,response)=>{
+  const person=persons.find(u=>u.id==request.params.id)
+  if(!person){
+    return response.status(404).send("<h1>user not found</h1>")
+  }
+  response.json(person)
+})
+
+app.delete("/api/persons/:id",(request,response)=>{
+  const person=persons.findIndex(u=>u.id==request.params.id)
+  
+  if(person==-1){
+    return response.status(404).send("<h1>user not found</h1>")
+  }
+  persons.splice(person,1)
+
+  response.status(204).end()
+  
+})
+
+app.post('/api/persons',(request,response)=>{
+  const data=request.body
+  console.log(data);
+  if(!data.name||!data.number){
+    return response.status(400).send({error:"invalid input"})
+  }
+  else if(persons.find(p=>p.name.toLowerCase()==data.name.toLowerCase())){
+    return response.status(400).send({error:"name already exists"})
+  }
+
+  persons.push({...data,id:`${Math.floor(Math.random()*1000000000)}`})
+  
+
+  response.status(201).send({message:"created successfully"})
+  
 })
 
 const PORT = 3001
