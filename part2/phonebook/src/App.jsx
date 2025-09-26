@@ -24,11 +24,11 @@ const App = () => {
   useEffect(()=>{
     personService.getAll()
     .then(data=>setPersons(data))
-  },[])
+  },[message])
 
 
   const addPerson=()=>{
-    const newPerson={name:newName,number:newNumber,id:`${Number(persons[persons.length-1].id)+1}`}
+    const newPerson={name:newName,number:newNumber}
     setPersons(persons.concat(newPerson))
     personService.create(newPerson)
     setMessage(`added ${newPerson.name}`)

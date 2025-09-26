@@ -1,7 +1,9 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors=require("cors")
 const app = express()
 
+app.use(cors({origin:true}))
 app.use(express.json())
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"))
@@ -26,6 +28,11 @@ const persons=[
       "id": "4",
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
+    },
+    {
+      "id":"5",
+      "name":"test",
+      "number":"12345"
     }
 ]
 
@@ -90,11 +97,11 @@ app.post('/api/persons',(request,response)=>{
   else if(persons.find(p=>p.name.toLowerCase()==data.name.toLowerCase())){
     return response.status(400).send({error:"name already exists"})
   }
-
-  persons.push({...data,id:`${Math.floor(Math.random()*1000000000)}`})
+  const newPerson={...data,id:`${Math.floor(Math.random()*1000000000)}`}
+  persons.push(newPerson)
   
 
-  response.status(201).send({message:"created successfully"})
+  response.status(201).send({message:"created successfully",id:newPerson.id})
   
 })
 
