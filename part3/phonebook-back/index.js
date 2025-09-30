@@ -33,7 +33,7 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
 
-app.get("/info", async (request, response) => {
+app.get("/info", (request, response) => {
   const date = new Date();
   const formatted = date.toLocaleString("en-US", {
     weekday: "short",
@@ -45,14 +45,12 @@ app.get("/info", async (request, response) => {
     second: "2-digit",
     timeZoneName: "longOffset",
   });
-  let length = 0;
-  await Person.find({}).then((result) => {
-    length = result.length;
-  });
-
-  const info = `<h1>phonebook has info for ${length}
+  Person.find({}).then((result) => {
+    const length = result.length;
+    const info = `<h1>phonebook has info for ${length}
    people</h1><p>${formatted}</p>`;
-  response.send(info);
+    response.send(info);
+  });
 });
 
 app.get("/api/persons", (request, response) => {
