@@ -14,46 +14,26 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-const persons = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-  {
-    id: "5",
-    name: "test",
-    number: "12345",
-  },
-];
+const unknownEndpoint = (request, response, next) => {
+  response.status(404).send({ error: "unknown endpoint" });
+  next();
+};
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
 
-app.get("/api/persons", (request, response) => {
-  Person.find({}).then((result) => {
-    response.json(result);
-  });
-  // response.json(persons);
-});
-
-app.get("/info", (request, response) => {
+app.get("/info", async (request, response) => {
   const date = new Date();
   const formatted = date.toLocaleString("en-US", {
     weekday: "short",
@@ -65,21 +45,31 @@ app.get("/info", (request, response) => {
     second: "2-digit",
     timeZoneName: "longOffset",
   });
+  let length = 0;
+  await Person.find({}).then((result) => {
+    length = result.length;
+  });
 
-  const info = `<h1>phonebook has info for ${persons.length} people</h1><p>${formatted}</p>`;
+  const info = `<h1>phonebook has info for ${length}
+   people</h1><p>${formatted}</p>`;
   response.send(info);
 });
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons", (request, response) => {
+  Person.find({}).then((result) => {
+    response.json(result);
+  });
+  // response.json(persons);
+});
+
+app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       person
         ? response.json(person)
         : response.status(404).send("<h1>user not found</h1>");
     })
-    .catch((err) => {
-      response.status(500).send("<h1>internal error</h1>");
-    });
+    .catch((err) => next(err));
   // const person = persons.find((u) => u.id == request.params.id);
   // if (!person) {
   //   return response.status(404).send("<h1>user not found</h1>");
@@ -87,15 +77,12 @@ app.get("/api/persons/:id", (request, response) => {
   // response.json(person);
 });
 
-app.delete("/api/persons/:id", (request, response) => {
-  const person = persons.findIndex((u) => u.id == request.params.id);
-
-  if (person == -1) {
-    return response.status(404).send("<h1>user not found</h1>");
-  }
-  persons.splice(person, 1);
-
-  response.status(204).end();
+app.delete("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((err) => next(err));
 });
 
 app.post("/api/persons", (request, response) => {
@@ -112,6 +99,24 @@ app.post("/api/persons", (request, response) => {
 
   // response.status(201).send({ message: "created successfully" });
 });
+
+app.put("/api/persons/:id", (request, response) => {
+  const { name, number } = request.body;
+  Person.findById(request.params.id).then((result) => {
+    if (!result) {
+      return response.status(404).end();
+    }
+    result.name = name;
+    result.number = number;
+
+    return result.save().then((update) => {
+      return response.json(update);
+    });
+  });
+});
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
