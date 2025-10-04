@@ -1,128 +1,124 @@
-import { useState } from 'react'
-import Persons from './components/Persons'
-import PhoneForm from './components/PhoneForm'
-import SearchForm from './components/SearchForm'
-import { useEffect } from 'react'
-import personService from './services/persons'
-import Notification from './components/Notification'
-
-
+import { useState } from "react";
+import Persons from "./components/Persons";
+import PhoneForm from "./components/PhoneForm";
+import SearchForm from "./components/SearchForm";
+import { useEffect } from "react";
+import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]) 
-  const [newName, setNewName] = useState('')
-  const [newNumber,setNewNumber]=useState('')
-  const [searchName,setSearchName]=useState('')
-  const [message , setMessage]=useState('')
-  const [error,setError]=useState('')
+    { name: "Arto Hellas", number: "040-123456", id: 1 },
+    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
+    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
+    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
+  ]);
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  useEffect(()=>{
-    personService.getAll()
-    .then(data=>setPersons(data))
-  },[message])
+  useEffect(() => {
+    personService.getAll().then((data) => setPersons(data));
+  }, [message]);
 
+  const addPerson = () => {
+    const newPerson = { name: newName, number: newNumber };
+    personService
+      .create(newPerson)
+      .then((result) => {
+        setMessage(`added ${newPerson.name}`);
+        setTimeout(() => setMessage(""), 2000);
+        setPersons(persons.concat(newPerson));
+      })
+      .catch((err) => {
+        setError(err.response.data.error);
+        setTimeout(() => setError(""), 2000);
+      });
+  };
 
-  const addPerson=()=>{
-    const newPerson={name:newName,number:newNumber}
-    setPersons(persons.concat(newPerson))
-    personService.create(newPerson)
-    setMessage(`added ${newPerson.name}`)
-    setTimeout(()=>setMessage(''),2000)
-  }
+  const changeNumber = () => {
+    const index = persons.findIndex((u) => u.name == newName);
+    const person = { ...persons[index] };
+    person.number = newNumber;
+    personService
+      .updatePerson(person)
+      .then((response) => {
+        const copy = [...persons];
+        copy.splice(index, 1, person);
+        setPersons(copy);
+        setMessage(`changed ${person.name} number to ${person.number}`);
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      });
+    setTimeout(() => {
+      setMessage("");
+      setError("");
+    }, 2000);
+  };
 
-  const changeNumber=()=>{
-    const index=persons.findIndex(u=>u.name==newName)
-    const person={...persons[index]}
-    person.number=newNumber
-    personService.updatePerson(person)
-    .then(response=>{
-      const copy=[...persons]
-      copy.splice(index,1,person)
-      setPersons(copy)
-      setMessage(`changed ${person.name} number to ${person.number}`)
+  const handleAdd = (event) => {
+    event.preventDefault();
 
-    })
-    .catch(error=>{
-      setError(`information for ${person.name} has already been deleted`)
-    })
-    setTimeout(()=>{
-      setMessage('')
-      setError('')
+    persons.find((u) => u.name == newName) ? changeNumber() : addPerson();
+    setNewName("");
+    setNewNumber("");
+  };
 
-    },2000)
-  }
-
-
-  const handleAdd=(event)=>{
-    event.preventDefault()
-    
-    
-    persons.find(u=>u.name==newName)?changeNumber():addPerson()
-    setNewName("")
-    setNewNumber("")
-  }
-
-  const deletePerson=(person)=>()=>{
+  const deletePerson = (person) => () => {
     console.log(person.id);
-    
-    const confirmation=window.confirm(`are you sure you want to remove ${person.name}`)
-    if(confirmation){
-      const index=persons.findIndex(u=>u.id==person.id)
-      const id=person.id
+
+    const confirmation = window.confirm(
+      `are you sure you want to remove ${person.name}`
+    );
+    if (confirmation) {
+      const index = persons.findIndex((u) => u.id == person.id);
+      const id = person.id;
       // console.log(id);
-      personService.deletePerson(id)
-      const copy=[...persons]
-      copy.splice(index,1)
-      setPersons(copy)
-
-
+      personService.deletePerson(id);
+      const copy = [...persons];
+      copy.splice(index, 1);
+      setPersons(copy);
     }
+  };
 
-    
-
-  }
-  
-    
-
-  
   // console.log(searchName);
   // console.log(persons.filter((person)=>(
   //       person.name.toLowerCase().includes(searchName.toLowerCase())
   //     )));
-  
 
-  
-  const filterPersons=()=>(
-      searchName?persons.filter((person)=>(
-        person.name.toLowerCase().includes(searchName.toLowerCase())
-    )):persons
+  const filterPersons = () =>
+    searchName
+      ? persons.filter((person) =>
+          person.name.toLowerCase().includes(searchName.toLowerCase())
+        )
+      : persons;
 
-  )
-
-  const handleSearchForm=(event)=> setSearchName(event.target.value)
-
+  const handleSearchForm = (event) => setSearchName(event.target.value);
 
   // console.log(newName);
-  
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={error} type="error"/>
-      <Notification message={message} type="notification"/>
-      <SearchForm onChange={handleSearchForm} value={searchName}/>
+      <Notification message={error} type="error" />
+      <Notification message={message} type="notification" />
+      <SearchForm onChange={handleSearchForm} value={searchName} />
 
       <h2>add a new</h2>
-      <PhoneForm onSubmit={handleAdd} setNewName={setNewName} setNewNumber={setNewNumber} newName={newName} newNumber={newNumber}/>
+      <PhoneForm
+        onSubmit={handleAdd}
+        setNewName={setNewName}
+        setNewNumber={setNewNumber}
+        newName={newName}
+        newNumber={newNumber}
+      />
       <h2>Numbers</h2>
-      <Persons persons={filterPersons()} handleDelete={deletePerson}/>
+      <Persons persons={filterPersons()} handleDelete={deletePerson} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

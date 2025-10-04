@@ -24,6 +24,10 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({
+      error: "invalid input format for name or number",
+    });
   }
 
   next(error);
@@ -83,22 +87,22 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .catch((err) => next(err));
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const data = request.body;
   console.log(data);
-  if (!data.name || !data.number) {
-    return response.status(400).send({ error: "invalid input" });
-  }
   const person = new Person({
     name: data.name,
     number: data.number,
   });
-  person.save().then((savedPerson) => response.status(201).json(savedPerson));
+  person
+    .save()
+    .then((savedPerson) => response.status(201).json(savedPerson))
+    .catch((err) => next(err));
 
   // response.status(201).send({ message: "created successfully" });
 });
 
-app.put("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
   const { name, number } = request.body;
   Person.findById(request.params.id).then((result) => {
     if (!result) {
@@ -107,9 +111,12 @@ app.put("/api/persons/:id", (request, response) => {
     result.name = name;
     result.number = number;
 
-    return result.save().then((update) => {
-      return response.json(update);
-    });
+    return result
+      .save()
+      .then((update) => {
+        response.json(update);
+      })
+      .catch((err) => next(err));
   });
 });
 
