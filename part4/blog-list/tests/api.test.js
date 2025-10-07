@@ -52,6 +52,26 @@ test("blog without right body is not added", async () => {
   const blogsAtEnd = await helper.blogsInDataBase();
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
+test("has id property", async () => {
+  const blogs = await helper.blogsInDataBase();
+  // console.log(blogs);
+
+  assert(Object.hasOwn(blogs[0], "id"));
+  assert(!Object.hasOwn(blogs[0], "_id"));
+});
+test("likes default to zero if not given", async () => {
+  const newBlog = {
+    title: "testing post",
+    author: "test",
+    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+  };
+  await api.post("/api/blogs").send(newBlog);
+  const blogsAtEnd = await helper.blogsInDataBase();
+
+  const [addedBlog] = await blogsAtEnd.filter((blog) => blog.author === "test");
+
+  assert.strictEqual(addedBlog.likes, 0);
+});
 
 after(async () => {
   await mongoose.connection.close();
