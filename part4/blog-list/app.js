@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const middleware = require("./utils/middleware");
 const logger = require("./utils/logger");
 
+app.use(middleware.tokenExtractor);
 app.use(express.json());
 app.use(middleware.requestLogger);
 
