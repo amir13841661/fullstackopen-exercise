@@ -1,17 +1,22 @@
 const assert = require("node:assert");
 const helper = require("./test_helper");
+const userhelper = require("./users_test_helper");
 const { test, after, beforeEach, describe } = require("node:test");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 
 const Blog = require("../models/blog");
-
+const User = require("../models/user");
 const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
   await Blog.insertMany(helper.initialBlogs);
+  await User.deleteMany({});
+  for (user of userhelper.initialUsers) {
+    await api.post("/api/users").send(user);
+  }
 });
 
 describe("getting blogs", () => {
@@ -35,15 +40,27 @@ describe("getting blogs", () => {
   });
 });
 
-describe("adding new blogs", () => {
+describe("adding new blogs", async () => {
+  let token;
+
+  beforeEach(async () => {
+    const sampleUser = userhelper.initialUsers[0];
+    const response = await api
+      .post("/api/login")
+      .send({ username: sampleUser.username, password: sampleUser.password });
+    token = response.body.token;
+  });
+
   test("new valid blog can be added", async () => {
     const newBlog = {
       title: "testing post",
       author: "test",
       url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
     };
+
     await api
       .post("/api/blogs")
+      .set("authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -54,10 +71,14 @@ describe("adding new blogs", () => {
     assert(authors.includes("test"));
   });
 
-  test("blog without right body is not added", async () => {
+  test("blog without right body are not added", async () => {
     const newBlog = {};
 
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("authorization", `Bearer ${token}`)
+      .send(newBlog)
+      .expect(400);
 
     const blogsAtEnd = await helper.blogsInDataBase();
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
@@ -68,7 +89,10 @@ describe("adding new blogs", () => {
       author: "test",
       url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
     };
-    await api.post("/api/blogs").send(newBlog);
+    await api
+      .post("/api/blogs")
+      .set("authorization", `Bearer ${token}`)
+      .send(newBlog);
     const blogsAtEnd = await helper.blogsInDataBase();
 
     const [addedBlog] = await blogsAtEnd.filter(
@@ -76,6 +100,15 @@ describe("adding new blogs", () => {
     );
 
     assert.strictEqual(addedBlog.likes, 0);
+  });
+  test("fails when no token given", async () => {
+    const newBlog = {
+      title: "testing post",
+      author: "test",
+      url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+    };
+
+    await api.post("/api/blogs").send(newBlog).expect(401);
   });
 });
 
@@ -109,6 +142,16 @@ describe("updating existing blogs data", () => {
     const [updatedBlog] = blogsAtEnd.filter((u) => u.id === blogToUpdate.id);
 
     assert.strictEqual(updatedBlog.likes, newLikesValue);
+  });
+});
+
+describe("adding users", () => {
+  test("invalid users won't be added", async () => {
+    const usersAtStart = await userhelper.usersInDataBase();
+    const newInvalidUser = { username: "1", name: "2", password: "1" };
+    await api.post("/api/users").send(newInvalidUser).expect(400);
+    const usersAtEnd = await userhelper.usersInDataBase();
+    assert.strictEqual(usersAtStart.length, usersAtEnd.length);
   });
 });
 

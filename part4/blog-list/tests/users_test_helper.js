@@ -4,14 +4,12 @@ const initialUsers = [
   {
     username: "test",
     name: "test",
-    id: "68e663619dc02d567f1ae35f",
-    passwordHash: "testHash",
+    password: "test",
   },
   {
     username: "test1",
     name: "test1",
-    id: "68e6a2f36f3b35268b934e79",
-    passwordHash: "testHash",
+    password: "test1",
   },
 ];
 
