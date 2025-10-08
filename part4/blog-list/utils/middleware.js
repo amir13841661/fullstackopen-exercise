@@ -21,6 +21,11 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).json({
       error: "invalid input format for name or number",
     });
+  } else {
+    logger.error(
+      error,
+      "-----------------------------------------------------------"
+    );
   }
 
   next(error);
