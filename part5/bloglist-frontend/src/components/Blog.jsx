@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 const Blog = ({ blog, increaseLikes, handleBlogDeletion }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
   const toggleVisibility = () => {
-    setVisible(!visible);
-  };
+    setVisible(!visible)
+  }
 
   return (
     <div>
-      {blog.title} {blog.author}{" "}
+      {blog.title} {blog.author}{' '}
       <button onClick={() => toggleVisibility()}>
-        {visible ? "hide" : "view"}
+        {visible ? 'hide' : 'view'}
       </button>
       {visible ? (
         <>
           <p>{blog.url}</p>
           <p>
-            likes{blog.likes}{" "}
+            likes{blog.likes}{' '}
             <button onClick={() => increaseLikes(blog.id, blog.likes)}>
               like
             </button>
@@ -26,7 +26,7 @@ const Blog = ({ blog, increaseLikes, handleBlogDeletion }) => {
         </>
       ) : null}
     </div>
-  );
-};
+  )
+}
 
-export default Blog;
+export default Blog

@@ -1,5 +1,5 @@
-import Blog from "./Blog";
-import UserInfo from "./UserInfo";
+import Blog from './Blog'
+import UserInfo from './UserInfo'
 
 const Blogs = ({
   blogs,
@@ -20,6 +20,6 @@ const Blogs = ({
       />
     ))}
   </>
-);
+)
 
-export default Blogs;
+export default Blogs
