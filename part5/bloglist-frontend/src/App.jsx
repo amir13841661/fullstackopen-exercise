@@ -16,6 +16,7 @@ const App = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const blogFormRef = useRef();
+  blogs.sort((a, b) => b.likes - a.likes);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -45,6 +46,20 @@ const App = () => {
       setMessage("");
     }, 3000);
   };
+  const increaseLikes = async (blogId, likes) => {
+    try {
+      await blogService.update(blogId, likes + 1);
+      const copy = [...blogs];
+      const blogIndex = copy.findIndex((u) => u.id == blogId);
+      copy[blogIndex].likes = likes + 1;
+      setBlogs(copy);
+    } catch {
+      setError("error changing likes");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+  };
 
   const createBlog = async ({ title, author, url }) => {
     try {
@@ -62,6 +77,26 @@ const App = () => {
       }, 3000);
     } catch {
       setError("couldnt add blog");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+  };
+
+  const deleteBlog = async (blogId) => {
+    if (!window.confirm("do you really want to delete this blog?")) {
+      return;
+    }
+    try {
+      const response = await blogService.deleteBlog(blogId);
+      const copy = blogs.filter((u) => u.id != blogId);
+      setBlogs(copy);
+      setMessage("blog deleted successfuly");
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } catch {
+      setError("could'nt delete blog");
       setTimeout(() => {
         setError("");
       }, 3000);
@@ -101,7 +136,13 @@ const App = () => {
         </Togglable>
       )}
       {user && (
-        <Blogs blogs={blogs} name={user.name} handleLogout={handleLogout} />
+        <Blogs
+          blogs={blogs}
+          name={user.name}
+          handleLogout={handleLogout}
+          increaseLikes={increaseLikes}
+          handleBlogDeletion={deleteBlog}
+        />
       )}
       {user && (
         <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
