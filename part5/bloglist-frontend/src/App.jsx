@@ -1,0 +1,123 @@
+import { useState, useEffect } from "react";
+import Blog from "./components/Blog";
+import blogService from "./services/blogs";
+import loginService from "./services/login";
+import LoginForm from "./components/LoginForm";
+import Notification from "./components/Notification";
+import Blogs from "./components/Blogs";
+import BlogCreationForm from "./components/BlogCreationForm";
+
+const App = () => {
+  const [blogs, setBlogs] = useState([]);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [url, setUrl] = useState("");
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const user = await loginService.login({ username, password });
+      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
+      blogService.setToken(user.token);
+      setUser(user);
+      setUsername("");
+      setPassword("");
+      setMessage("logged in successfuly");
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } catch {
+      setError("invalid credintials");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+  };
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedBlogappUser");
+    setUser("");
+    setMessage("logged out");
+    setTimeout(() => {
+      setMessage("");
+    }, 3000);
+  };
+
+  const handleBlogCreation = async (event) => {
+    event.preventDefault();
+    try {
+      const newBlog = {
+        title: title,
+        author: author,
+        url: url,
+      };
+      const response = await blogService.create(newBlog);
+      setAuthor("");
+      setTitle("");
+      setUrl("");
+      setBlogs(blogs.concat(newBlog));
+      setMessage("new blog added");
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    } catch {
+      setError("couldnt add blog");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
+    async function getBlogs() {
+      const response = await blogService.getAll();
+      setBlogs(response.data);
+    }
+    getBlogs();
+  }, []);
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+  }, []);
+
+  return (
+    <div>
+      <Notification message={error} type="error" />
+      <Notification message={message} type="notification" />
+      {!user && (
+        <LoginForm
+          handleLogin={handleLogin}
+          username={username}
+          password={password}
+          setPassword={setPassword}
+          setUsername={setUsername}
+        />
+      )}
+      {user && (
+        <Blogs blogs={blogs} name={user.name} handleLogout={handleLogout} />
+      )}
+      {user && (
+        <BlogCreationForm
+          handleBlogCreation={handleBlogCreation}
+          author={author}
+          setAuthor={setAuthor}
+          setTitle={setTitle}
+          setUrl={setUrl}
+          title={title}
+          url={url}
+        />
+      )}
+    </div>
+  );
+};
+
+export default App;
