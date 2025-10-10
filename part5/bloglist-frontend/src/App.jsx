@@ -96,7 +96,7 @@ const App = () => {
         setMessage('')
       }, 3000)
     } catch {
-      setError('could\'nt delete blog')
+      setError("could'nt delete blog")
       setTimeout(() => {
         setError('')
       }, 3000)
@@ -122,8 +122,8 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={error} type="error" />
-      <Notification message={message} type="notification" />
+      <Notification message={error} type='error' />
+      <Notification message={message} type='notification' />
       {!user && (
         <Togglable buttonLabel={'login'}>
           <LoginForm

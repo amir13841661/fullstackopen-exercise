@@ -7,20 +7,20 @@ const Blog = ({ blog, increaseLikes, handleBlogDeletion }) => {
   }
 
   return (
-    <div>
+    <div data-testid='blog'>
       {blog.title} {blog.author}{' '}
       <button onClick={() => toggleVisibility()}>
         {visible ? 'hide' : 'view'}
       </button>
       {visible ? (
         <>
-          <p>{blog.url}</p>
-          <p>
-            likes{blog.likes}{' '}
+          <p data-testid='url'>{blog.url}</p>
+          <div data-testid='likes'>
+            likes: {blog.likes}{' '}
             <button onClick={() => increaseLikes(blog.id, blog.likes)}>
               like
             </button>
-          </p>
+          </div>
           <p>{blog.user.name}</p>
           <button onClick={() => handleBlogDeletion(blog.id)}>delete</button>
         </>
