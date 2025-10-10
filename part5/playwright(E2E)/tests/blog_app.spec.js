@@ -28,8 +28,11 @@ describe('Blog app', () => {
       await expect(page.getByTestId('userinfo')).toBeVisible()
     })
 
-    // test('fails with wrong credentials', async ({ page }) => {
-    //   // ...
-    // })
+    test('fails with wrong credentials', async ({ page }) => {
+      await page.getByLabel('username').fill('test')
+      await page.getByLabel('password').fill('testwrong')
+      await page.getByRole('button', { name: 'login' }).click()
+      await expect(page.getByTestId('userinfo')).not.toBeVisible()
+    })
   })
 })
