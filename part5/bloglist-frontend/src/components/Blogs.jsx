@@ -7,6 +7,7 @@ const Blogs = ({
   handleLogout,
   increaseLikes,
   handleBlogDeletion,
+  user,
 }) => (
   <>
     <h2>blogs</h2>
@@ -17,6 +18,7 @@ const Blogs = ({
         blog={blog}
         increaseLikes={increaseLikes}
         handleBlogDeletion={handleBlogDeletion}
+        user={user}
       />
     ))}
   </>

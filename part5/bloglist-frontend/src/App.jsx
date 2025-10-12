@@ -15,6 +15,7 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [addState, setAddState] = useState(false)
   const blogFormRef = useRef()
   blogs.sort((a, b) => b.likes - a.likes)
 
@@ -48,12 +49,17 @@ const App = () => {
   }
   const increaseLikes = async (blogId, likes) => {
     try {
+      console.log('sending request')
       await blogService.update(blogId, likes + 1)
+      console.log('done')
+
       const copy = [...blogs]
-      const blogIndex = copy.findIndex((u) => u.id == blogId)
+      const blogIndex = copy.findIndex((u) => u.id === blogId)
       copy[blogIndex].likes = likes + 1
       setBlogs(copy)
     } catch {
+      console.log('error')
+
       setError('error changing likes')
       setTimeout(() => {
         setError('')
@@ -69,7 +75,8 @@ const App = () => {
         url: url,
       }
       const response = await blogService.create(newBlog)
-      setBlogs(blogs.concat(newBlog))
+      setAddState(!addState)
+      // setBlogs(blogs.concat(newBlog))
       setMessage('new blog added')
       blogFormRef.current.toggleVisibility()
       setTimeout(() => {
@@ -109,7 +116,7 @@ const App = () => {
       setBlogs(response.data)
     }
     getBlogs()
-  }, [])
+  }, [addState])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -142,6 +149,7 @@ const App = () => {
           handleLogout={handleLogout}
           increaseLikes={increaseLikes}
           handleBlogDeletion={deleteBlog}
+          user={user}
         />
       )}
       {user && (

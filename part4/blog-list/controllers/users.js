@@ -2,12 +2,9 @@ const usersRouter = require('express').Router()
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
 usersRouter.post('/', async (request, response) => {
-  console.log('request')
-
   if (!request.body) {
     return response.status(400).send({ error: 'request body cannot be empty' })
   }
-  console.log('body checked')
 
   const { username, name, password } = request.body
   if (!username || !name || !password) {
@@ -19,7 +16,6 @@ usersRouter.post('/', async (request, response) => {
       .status(400)
       .send({ error: 'username and password must be at least 3 chars long' })
   }
-  console.log('credintials checked')
 
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -29,7 +25,6 @@ usersRouter.post('/', async (request, response) => {
     passwordHash,
   })
   const savedUser = await user.save()
-  console.log(savedUser)
 
   response.status(201).json(savedUser)
 })

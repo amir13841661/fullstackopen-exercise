@@ -19,7 +19,9 @@ const create = async (newObject) => {
   return response.data
 }
 const update = async (blogId, likes) => {
-  const response = await axios.put(`/api/blogs/${blogId}`, { likes: likes })
+  const response = await axios.put(`/api/blogs/${blogId}`, {
+    data: { likes: likes },
+  })
   return response
 }
 const deleteBlog = async (blogId) => {
